@@ -1,0 +1,612 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+<meta name="description"
+
+content="sample project page">
+
+<meta name="keywords"
+
+content="mathematics,TCU,student,Duy Nguyen,Numerical Analysis">
+
+ <title>Javascript Project Page</title>
+
+<link type="text/css" rel="stylesheet" 
+href="sampleCSSstyle.css">
+<script type="text/javascript">
+
+function computeFunction(){
+
+	 x=eval(document.getElementById("xValue").value);
+     
+     s="y="+document.getElementById("functionExpression").value;   //This extracts the text function from the input box and evaluates the function on x
+     eval(s);
+     
+     document.getElementById("functionValue").innerHTML = "f(x) = "+y; // this changes the "functionValue" element 
+}
+function functionOutput(functionInput){
+
+	 x=functionInput;
+
+	 s="y="+document.getElementById("functionExpression").value;   //This extracts the text function from the input box and evaluates the function on x
+
+	 eval(s);
+
+	 return y;	
+}
+dayX= new Array();
+dayY= new Array();
+check=new Array();
+storeX=new Array();
+storeY=new Array();
+check1=false;
+i=0;
+count=0;
+error=0;
+SUM=0;
+SL=1;
+Max=0;
+x0=0;x1=0;
+storeX[0]=0;storeY[0]=0;
+function Trap(x0,x1){
+x_mid=0.5*(x1+x0);
+a=x0;
+b=x1;
+//y0=x0*x0;
+//y1=x1*x1;
+y0=functionOutput(x0);
+y1=functionOutput(x1);
+y_mid=functionOutput(x_mid);
+Trap1=0.5*(x1-x0)*(y0+y1);
+Trap2=0.25*(x1-x0)*(y0+2*y_mid+y1);
+if (Trap2!=0){  
+  E=(1- Trap1/Trap2)/3;
+
+if (Math.abs(E)<error){
+    SUM+=Trap2*(1+E);
+    check1=false;
+    for (j=0;j<=count;j++)
+        if (check[count-j]==1){
+           i=count-j;
+           a=dayX[i];
+           b=dayY[i];
+           check[i]=0;
+           check1=true;
+           break;
+         }  
+    if (check1==true)
+    Trap(a,b);
+}
+else {
+SL++;
+if (SL<=Max){
+i++;
+dayX[i]=a;
+dayY[i]=(a+b)/2;
+check[i]=1;
+i++;
+count=count+2;
+dayX[i]=(a+b)/2;
+dayY[i]=b;
+check[i]=0;
+storeX[count-1]=a;
+storeY[count-1]=(a+b)/2;
+storeX[count]=(a+b)/2;
+storeY[count]=b;
+
+Trap((a+b)/2,b);
+} //end of if  SL<=Max
+else{   //here where SL>Max
+SUM+=Trap2*(1+E);
+check1=false;
+    for (j=0;j<=count;j++)
+        if (check[count-j]==1){
+           i=count-j;
+           a=dayX[i];
+           b=dayY[i];
+           check[i]=0;
+           check1=true;
+           break;
+         }  
+    if (check1==true)
+    Trap(a,b);
+} //end of else
+}
+} //end  of if trap2!=0
+else{ //the case trap2=0
+if (SL<=Max){
+i++;
+dayX[i]=a;
+dayY[i]=(a+b)/2;
+check[i]=1;
+i++;
+count=count+2;
+dayX[i]=(a+b)/2;
+dayY[i]=b;
+check[i]=0;
+storeX[count-1]=a;
+storeY[count-1]=(a+b)/2;
+storeX[count]=(a+b)/2;
+storeY[count]=b;
+Trap((a+b)/2,b);
+}
+else{ // trap2=0 and SL>Max
+SUM+=Trap2*(1+E);
+check1=false;
+    for (j=0;j<=count;j++)
+        if (check[count-j]==1){
+           i=count-j;
+           a=dayX[i];
+           b=dayY[i];
+           check[i]=0;
+           check1=true;
+           break;
+         }  
+    if (check1==true)
+    Trap(a,b);
+}
+
+
+} //end of else
+}
+function CalcTrap(){
+	x0=eval(document.getElementById("x_0").value);
+	x1=eval(document.getElementById("x_1").value);
+	error=eval(document.getElementById("epsilon").value);
+	Max=eval(document.getElementById("MaxN").value);; //maximum number of subdivision levels allowed
+	SL=1; //the subdivision level
+	dayX[0]=x0;
+	dayY[0]=x1;
+	storeX[0]=x0; //new change
+	storeY[0]=x1;//new change
+	check[0]=0;
+	Trap(x0,x1);
+	document.getElementById("Trap_sum").innerHTML = "Trapezoid Sum = "+ SUM;
+	SUM=0; //Initialize SUM for new calculation
+	//document.write(SUM+"<br>");
+}
+function ShowSub(){
+   // sorting to output
+storeX[0]=x0;
+storeX.sort();
+count1=0;
+    //output
+s='';  
+if (count==2) //new change
+{
+	s+=("["+storeX[1] + ", " + storeX[2] + "], ");
+	s+=("["+storeX[2] + ", " + x1 + "]");
+}
+else if (storeX.length!=0 && count!=2 && count!=1){
+for (j=1; j<=count-2;j++)
+if (storeX[j]!=storeX[j+1]){
+	s+=("["+storeX[j] + ", " + storeX[j+1] + "],") + "<br>";
+	count1++;
+}
+s+=("["+storeX[count-1] + ", " + x1 + "]")+ "<br>"; 
+}
+else if (count1==0)
+s+=("["+x0 + ", " + x1 + "]");
+//if (count1=1)
+if (count1!=0 && count!=2)
+document.getElementById("Show_sub").innerHTML =count1+1 +" Subdivision Interval(s) = "+ s;
+else document.getElementById("Show_sub").innerHTML =count1+" Subdivision Interval(s) = "+ s;
+
+if (count==2)
+document.getElementById("Show_sub").innerHTML =2+" Subdivision Interval(s) = "+ s;
+if (count1==0)
+document.getElementById("Show_sub").innerHTML =1+" Subdivision Interval(s) = ["+x0 +","+ x1+"]" ;
+} 
+
+
+
+// ADAPTIVE LEFT 
+function Left(x0,x1){
+	x_mid=0.5*(x1+x0);
+	a=x0;
+	b=x1;
+	y0=functionOutput(x0);
+	y1=functionOutput(x1);
+	y_mid=functionOutput(x_mid);
+	Left1=(x1-x0)*y0;
+	Left2=0.5*(x1-x0)*(y0+y_mid);
+if (Left2!=0){  
+  E=(1- Left1/Left2);
+
+if (Math.abs(E)<error){
+    SUM+=Left2*(1+E);
+    check1=false;
+    for (j=0;j<=count;j++)
+        if (check[count-j]==1){
+           i=count-j;
+           a=dayX[i];
+           b=dayY[i];
+           check[i]=0;
+           check1=true;
+           break;
+         }  
+    if (check1==true)
+    Left(a,b);
+}
+else {
+	SL++;
+	if (SL<=Max){
+	i++;
+	dayX[i]=a;
+	dayY[i]=(a+b)/2;
+	check[i]=1;
+	i++;
+	count=count+2;
+	dayX[i]=(a+b)/2;
+	dayY[i]=b;
+	check[i]=0;
+	storeX[count-1]=a;
+	storeY[count-1]=(a+b)/2;
+	storeX[count]=(a+b)/2;
+	storeY[count]=b;
+
+	Left((a+b)/2,b);
+} //end of if  SL<=Max
+else{   //here where SL>Max
+	SUM+=Left2*(1+E);
+	check1=false;
+		for (j=0;j<=count;j++)
+			if (check[count-j]==1){
+			   i=count-j;
+			   a=dayX[i];
+			   b=dayY[i];
+			   check[i]=0;
+			   check1=true;
+			   break;
+			 }  
+		if (check1==true)
+		Left(a,b);
+} //end of else
+}
+} //end  of if trap2!=0
+else{ //the case trap2=0
+	if (SL<=Max){
+	i++;
+	dayX[i]=a;
+	dayY[i]=(a+b)/2;
+	check[i]=1;
+	i++;
+	count=count+2;
+	dayX[i]=(a+b)/2;
+	dayY[i]=b;
+	check[i]=0;
+	storeX[count-1]=a;
+	storeY[count-1]=(a+b)/2;
+	storeX[count]=(a+b)/2;
+	storeY[count]=b;
+	Left((a+b)/2,b);
+}
+else{ // trap2=0 and SL>Max
+	SUM+=Left2*(1+E);
+	check1=false;
+		for (j=0;j<=count;j++)
+			if (check[count-j]==1){
+			   i=count-j;
+			   a=dayX[i];
+			   b=dayY[i];
+			   check[i]=0;
+			   check1=true;
+			   break;
+			 }  
+		if (check1==true)
+		Left(a,b);
+}
+
+
+} //end of else
+}
+// main program for LEFT
+function CalcLeft(){
+	x0=eval(document.getElementById("x_0").value);
+	x1=eval(document.getElementById("x_1").value);
+	error=eval(document.getElementById("epsilon").value);
+	Max=eval(document.getElementById("MaxN").value);; //maximum number of subdivision levels allowed
+	SL=1; //the subdivision level
+	dayX[0]=x0;
+	dayY[0]=x1;
+	check[0]=0;
+	Left(x0,x1);
+	document.getElementById("Left_sum").innerHTML = "Left Sum = "+ SUM;
+	SUM=0; //Initialize SUM for new calculations
+//document.write(SUM+"<br>");
+}
+// ADAPTIVE RIGHT 
+
+function Right(x0,x1){
+	x_mid=0.5*(x1+x0);
+	a=x0;
+	b=x1;
+	y0=functionOutput(x0);
+	y1=functionOutput(x1);
+	y_mid=functionOutput(x_mid);
+	Right1=(x1-x0)*y1;
+	Right2=0.5*(x1-x0)*(y1+y_mid);
+	if (Right2!=0){  
+	  E=(1- Right1/Right2);
+
+	if (Math.abs(E)<error){
+		SUM+=Right2*(1+E);
+		check1=false;
+		for (j=0;j<=count;j++)
+			if (check[count-j]==1){
+			   i=count-j;
+			   a=dayX[i];
+			   b=dayY[i];
+			   check[i]=0;
+			   check1=true;
+			   break;
+			 }  
+		if (check1==true)
+		Right(a,b);
+}
+else {
+	SL++;
+	if (SL<=Max){
+	i++;
+	dayX[i]=a;
+	dayY[i]=(a+b)/2;
+	check[i]=1;
+	i++;
+	count=count+2;
+	dayX[i]=(a+b)/2;
+	dayY[i]=b;
+	check[i]=0;
+	storeX[count-1]=a;
+	storeY[count-1]=(a+b)/2;
+	storeX[count]=(a+b)/2;
+	storeY[count]=b;
+
+	Right((a+b)/2,b);
+} //end of if  SL<=Max
+else{   //here where SL>Max
+	SUM+=Right2*(1+E);
+	check1=false;
+		for (j=0;j<=count;j++)
+			if (check[count-j]==1){
+			   i=count-j;
+			   a=dayX[i];
+			   b=dayY[i];
+			   check[i]=0;
+			   check1=true;
+			   break;
+			 }  
+		if (check1==true)
+		Right(a,b);
+} //end of else
+}
+} //end  of if trap2!=0
+else{ //the case trap2=0
+if (SL<=Max){
+	i++;
+	dayX[i]=a;
+	dayY[i]=(a+b)/2;
+	check[i]=1;
+	i++;
+	count=count+2;
+	dayX[i]=(a+b)/2;
+	dayY[i]=b;
+	check[i]=0;
+	storeX[count-1]=a;
+	storeY[count-1]=(a+b)/2;
+	storeX[count]=(a+b)/2;
+	storeY[count]=b;
+	Right((a+b)/2,b);
+}
+else{ // trap2=0 and SL>Max
+	SUM+=Right*(1+E);
+	check1=false;
+		for (j=0;j<=count;j++)
+			if (check[count-j]==1){
+			   i=count-j;
+			   a=dayX[i];
+			   b=dayY[i];
+			   check[i]=0;
+			   check1=true;
+			   break;
+			 }  
+		if (check1==true)
+		Right(a,b);
+}
+
+
+} //end of else
+}
+// main program for Right
+function CalcRight(){
+	x0=eval(document.getElementById("x_0").value);
+	x1=eval(document.getElementById("x_1").value);
+	error=eval(document.getElementById("epsilon").value);
+	Max=eval(document.getElementById("MaxN").value);; //maximum number of subdivision levels allowed
+	SL=1; //the subdivision level
+	dayX[0]=x0;
+	dayY[0]=x1;
+	check[0]=0;
+	Right(x0,x1);
+	document.getElementById("Right_sum").innerHTML = "Right Sum = "+ SUM;
+	SUM=0; //Initialize SUM for new calculations
+	//document.write(SUM+"<br>");
+}
+// SIMPSON 
+function Simp(x0,x2){
+	x1=0.5*(x2+x0);
+	a=x0;
+	b=x2;
+	x12=0.5*(x0+x1);
+	x32=0.5*(x2+x1);
+	y0=functionOutput(x0);
+	y2=functionOutput(x2);
+	y1=functionOutput(x1);
+	y12=functionOutput(x12);
+	y32=functionOutput(x32);
+	Sim2=(x2-x0)*(y0+4*y1+y2)/6;
+	Sim4=(x2-x0)*(y0+4*y12+2*y1+4*y32+y2)/12;
+
+	if (Sim4!=0){  
+	  E=(1- Sim2/Sim4)/15;
+
+	if (Math.abs(E)<error){
+		SUM+=Sim4*(1+E);
+		check1=false;
+		for (j=0;j<=count;j++)
+			if (check[count-j]==1){
+			   i=count-j;
+			   a=dayX[i];
+			   b=dayY[i];
+			   check[i]=0;
+			   check1=true;
+			   break;
+			 }  
+		if (check1==true)
+		Simp(a,b);
+}
+else {
+	SL++;
+	if (SL<=Max){
+	i++;
+	dayX[i]=a;
+	dayY[i]=(a+b)/2;
+	check[i]=1;
+	i++;
+	count=count+2;
+	dayX[i]=(a+b)/2;
+	dayY[i]=b;
+	check[i]=0;
+	storeX[count-1]=a;
+	storeY[count-1]=(a+b)/2;
+	storeX[count]=(a+b)/2;
+	storeY[count]=b;
+
+	Simp((a+b)/2,b);
+} //end of if  SL<=Max
+else{   //here where SL>Max
+	SUM+=Sim4*(1+E);
+	check1=false;
+		for (j=0;j<=count;j++)
+			if (check[count-j]==1){
+			   i=count-j;
+			   a=dayX[i];
+			   b=dayY[i];
+			   check[i]=0;
+			   check1=true;
+			   break;
+			 }  
+		if (check1==true)
+		Simp(a,b);
+} //end of else
+}
+} //end  of if trap2!=0
+else{ //the case trap2=0
+if (SL<=Max){
+	i++;
+	dayX[i]=a;
+	dayY[i]=(a+b)/2;
+	check[i]=1;
+	i++;
+	count=count+2;
+	dayX[i]=(a+b)/2;
+	dayY[i]=b;
+	check[i]=0;
+	storeX[count-1]=a;
+	storeY[count-1]=(a+b)/2;
+	storeX[count]=(a+b)/2;
+	storeY[count]=b;
+	Simp((a+b)/2,b);
+}
+else{ // trap2=0 and SL>Max
+	SUM+=Simp4*(1+E);
+	check1=false;
+		for (j=0;j<=count;j++)
+			if (check[count-j]==1){
+			   i=count-j;
+			   a=dayX[i];
+			   b=dayY[i];
+			   check[i]=0;
+			   check1=true;
+			   break;
+			 }  
+		if (check1==true)
+		Simp(a,b);
+}
+
+
+} //end of else
+}
+// main program for Simp
+function CalcSimp(){
+	x0=eval(document.getElementById("x_0").value);
+	x2=eval(document.getElementById("x_1").value);
+	error=eval(document.getElementById("epsilon").value);
+	Max=eval(document.getElementById("MaxN").value);; //maximum number of subdivision levels allowed
+	SL=1; //the subdivision level
+	dayX[0]=x0;
+	dayY[0]=x2;
+	storeX[0]=x0;
+	check[0]=0;
+	Simp(x0,x2);
+	document.getElementById("Simpson_sum").innerHTML = "Simpson Sum = "+ SUM;
+	SUM=0; //Initialize SUM for new calculations
+	//document.write(SUM+"<br>");
+	x1=x2; // for output purpose: consistent with ShowSub();
+}
+</script>
+<p> <!-- means new paragraph -->
+<center>
+<font size="6"><b>Numerical Analysis Project<br> 
+Adaptive Quadrature</b></font><br>
+<!--<font size="5"><b>Duy Nguyen</b></font> -->
+</center>
+</p>
+Write down f(x) (using javascript notation)<br>
+     <input type="text" value="" id="functionExpression" size=35 /><br>
+Value of x&nbsp;&nbsp;<input type="text" value="" id="xValue" size=10 /><br>  
+Left Endpoint&nbsp;&nbsp;<input type="text" value="" id="x_0" size=10 /><br>
+Right Endpoint &nbsp;&nbsp;<input type="text" value="" id="x_1" size=10 /><br>
+Maximum Relative Error Tolerance &nbsp;&nbsp;<input type="text" value="" id="epsilon" size=10 /><br>
+Maximum Number of Subdivision Levels &nbsp;&nbsp;<input type="text" value="" id="MaxN" size=10 /><br>
+<input type="button" value="Compute Function Value" onclick="computeFunction();" /><br>
+    <a id="functionValue"></a> <br>
+<!--  Adaptive Trapezoid Sum-->
+<input type="button" value="Adaptive Trap" onclick="CalcTrap();" /><br>  <!-- This does Adaptive Trapezoid-->
+<a id="Trap_sum"></a> <br>  
+<!--  Adaptive Left Riemann Sum--> 
+<input type="button" value="Adaptive Left" onclick="CalcLeft();" /><br>  <!-- This does Adaptive Left-->
+<a id="Left_sum"></a> <br> 
+<!--  Adaptive Right Riemann Sum--> 
+<input type="button" value="Adaptive Right" onclick="CalcRight();" /><br>  <!-- This does Adaptive Right-->
+<a id="Right_sum"></a> <br>   
+<!--  Adaptive Simpson Riemann Sum--> 
+<input type="button" value="Adaptive Simpson" onclick="CalcSimp();" /><br>  <!-- This does Adaptive Simpson-->
+<a id="Simpson_sum"></a> <br>   
+<!--  Show subdivisions-->
+<input type="button" value="Show subdivisions" onclick="ShowSub();" /><br> <!-- Show Subdivision-->
+<a id="Show_sub"></a> <br>
+<p><a href="#top">Back to Top</a> </p>
+<hr />
+<address>
+<li><a href="Explanation.pdf" target="_blank">User Guide</a></li> <br>
+Last Updated: November 21, 2011
+</address>
+</head>
+
+<body>
+
+</body>
+
+
+
+
+
+
+
+
+
+
+
+</html>
